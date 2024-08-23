@@ -23,6 +23,7 @@ int SPI_Init(int spiMode, char *SpiDev, uint8_t bits, uint32_t speed)
 	int ret = 0;
 	int fd;
 	int mode;
+	uint8_t readBits;
 	int readSpeed;
 
 	fd = open(SpiDev, O_RDWR);
@@ -42,7 +43,7 @@ int SPI_Init(int spiMode, char *SpiDev, uint8_t bits, uint32_t speed)
 	}
 
 	ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);	
-	if (ret == -1)
+	if (ret == -1 || mode != spiMode)
 	{
 		pabort("can't get spi mode");
 		return 0;
@@ -58,8 +59,8 @@ int SPI_Init(int spiMode, char *SpiDev, uint8_t bits, uint32_t speed)
 		return 0;
 	}
 
-	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
-	if (ret == -1)
+	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &readBits);
+	if (ret == -1 || bits != readBits)
 	{
 		pabort("can't get bits per word");
 		return 0;
@@ -76,7 +77,7 @@ int SPI_Init(int spiMode, char *SpiDev, uint8_t bits, uint32_t speed)
 	}
 
 	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &readSpeed);
-	if (ret == -1)
+	if (ret == -1 || readSpeed != speed)
 	{
 		pabort("can't get max speed hz");
 		return 0;
